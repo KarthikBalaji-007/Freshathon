@@ -1,0 +1,304 @@
+require('dotenv').config();  // Ensure the dotenv package is used to load the API key
+const { HfInference } = require('@huggingface/inference');
+const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);  // Use the API key from the .env file
+
+const fs = require("fs");
+const path = require("node:path");
+const pdf2md = require("@opendocsg/pdf2md");
+const { LMStudioClient } = require("@lmstudio/sdk");
+const { createMapping, decodeTemplate } = require("../utils/textUtils");
+const {
+  minimizeWindow,
+  maximizeWindow,
+  closeWindow,
+  sendMessageToRenderer,
+  setLoading,
+  sendNotification,
+} = require("../utils/windowUtils");
+const {
+  app,
+  ipcMain,
+  BrowserWindow,
+  globalShortcut,
+  clipboard,
+} = require("electron");
+
+// Handle unhandled rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+// Load configuration
+const configPath = path.join(__dirname, "../config.json");
+const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+const modelPath = config.modelPath;
+const enableClipboardMonitoring = config.enableClipboardMonitoring;
+
+// ----------------------------------------------------------------------------
+// LMStudioClient
+// ----------------------------------------------------------------------------
+
+const client = new LMStudioClient();
+
+// ----------------------------------------------------------------------------
+// Application window creation and management
+// ----------------------------------------------------------------------------
+
+let mainWindow;
+
+// Create the main application window
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 250,
+    height: 250,
+    x: 1000,
+    y: 480,
+    webPreferences: {
+      preload: path.join(__dirname, "../preload/preload.js"),
+    },
+    frame: false,
+    icon: path.join(__dirname, "../../public/icons/icon.ico"),
+  });
+  mainWindow.setMenuBarVisibility(false);
+  mainWindow.loadFile(path.join(__dirname, "../../public/index.html"));
+
+  if (enableClipboardMonitoring) {
+    monitorClipboard();
+  }
+}
+
+// Create a new window to display the results (input and output text)
+function createNewWindow(text1, text2) {
+  const newWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, "../preload/preload.js"),
+    },
+    frame: false,
+    icon: path.join(__dirname, "../../public/icons/icon.ico"),
+  });
+  newWindow.loadFile(path.join(__dirname, "../../public/newWindow.html"));
+  newWindow.webContents.on("did-finish-load", () => {
+    newWindow.webContents.send("send-text", text1, text2);
+  });
+  // newWindow.webContents.openDevTools()
+}
+
+// ----------------------------------------------------------------------------
+// Text processing functions
+// ----------------------------------------------------------------------------
+
+// redacted function using Hugging Face for NER (Named Entity Recognition)
+async function redact(text) {
+  try {
+    setLoading(true);
+
+    // Send the text to Hugging Face for token classification (NER)
+    const result = await hf.tokenClassification({
+      model: 'dslim/bert-base-NER',
+      inputs: [text], // Wrap the text inside an array
+    });
+
+    // Redact entities detected by the model
+    let redactedText = text;
+    result.forEach((entity) => {
+      const redactedValue = `[${entity.entity_group}]`;
+      redactedText = redactedText.replace(entity.word, redactedValue);
+    });
+
+    setLoading(false);
+    return redactedText;
+  } catch (err) {
+    console.error('Error during redaction:', err);
+    setLoading(false);
+    return text; // Return original text if error
+  }
+}
+// Check if the text contains PII (Personally Identifiable Information)
+// checkPII function using Hugging Face for token classification
+async function checkPII(text) {
+  try {
+    setLoading(true);
+
+    // Send the text to Hugging Face for token classification (NER)
+    const result = await hf.tokenClassification({
+      model: 'dslim/bert-base-NER',
+      inputs: [text], // Wrap the text inside an array
+    });
+
+    setLoading(false);
+    return result.length > 0 ? 'YES' : 'NO'; // Return YES if entities are found
+  } catch (error) {
+    console.error('Error checking PII:', error);
+    setLoading(false);
+    return 'NO'; // Return NO if an error occurs
+  }
+}
+
+// Monitor the clipboard for changes every second
+function monitorClipboard() {
+    setInterval(() => {
+    checkClipboard();
+  }, 1000);
+}  
+
+// Keep track of the last clipboard content so that we only trigger the LLM when the content changes
+let lastClipboard = "";
+  
+// Check the clipboard content for PII and notify the user if PII is detected
+function checkClipboard() {
+  const text = clipboard.readText();
+  if (text !== lastClipboard) {
+    lastClipboard = text;
+    if (text.length > 1000) {
+      sendMessageToRenderer(
+        "Clipboard text is too long. Detection of PII is disabled for large texts"
+      );
+      return;
+    }
+    checkPII(text).then((result) => {
+      if (result.trim().charAt(0) !== "Y") {
+        sendMessageToRenderer("No personal information detected in clipboard");
+      }
+      if (result.trim().charAt(0) === "Y") {
+        sendMessageToRenderer("Personal information detected in clipboard");
+
+        sendNotification(
+          mainWindow,
+          app,
+          "Personal Information Detected",
+          "Personal information detected in clipboard"
+        );
+      }
+    });
+  }
+}
+
+// Initialize a mapping object to store the template and actual values
+// Example: { "NAME": "John", "PHONE_NUM": "123-456-7890" }
+// This mapping object is used to replace placeholders in the template with actual values
+let mapping = {};
+
+// Redact the clipboard content and save a mapping of template words to actual words
+function redactClipboard() {
+  const text = clipboard.readText();
+  if (text) {
+    redact(text).then((result) => {
+      mapping = createMapping(result, text);
+      clipboard.writeText(result);
+      createNewWindow(result, text);
+      sendMessageToRenderer("Clipboard redacted");
+    });
+  } else {
+    sendMessageToRenderer("No text found in clipboard");
+  }
+}
+
+// Restore the clipboard content using the mapping object
+function restoreClipboard() {
+  const text = clipboard.readText();
+  if (text) {
+    const restored = decodeTemplate(text, mapping);
+    clipboard.writeText(restored);
+    createNewWindow(text, restored);
+    sendMessageToRenderer("Clipboard restored");
+  } else {
+    sendMessageToRenderer("No text found in clipboard");
+  }
+}
+
+// Read a file and redact its content and save the redacted content to a new file
+async function redactFile(filePath) {
+  try {
+    setLoading(true);
+    const extname = path.extname(filePath).toLowerCase();
+
+    if (extname !== ".pdf" && extname !== ".txt") {
+      sendMessageToRenderer(
+        "Unsupported file type. Please select a PDF or TXT file."
+      );
+      return;
+    }
+
+    const pdfBuffer = fs.readFileSync(filePath);
+    const outputFilePath = filePath + "-REDACTED.txt";
+
+    let text;
+    if (extname === ".pdf") {
+      text = await pdf2md(pdfBuffer);
+    } else {
+      text = fs.readFileSync(filePath, "utf-8");
+    }
+
+    const result = await redact(text);
+    mapping = createMapping(result, text);
+    createNewWindow(result, text);
+
+    fs.writeFileSync(outputFilePath, result);
+  } catch (err) {
+    console.error(`Error processing file: ${err.message}`);
+  } finally {
+    setLoading(false);
+  }
+}
+
+// ----------------------------------------------------------------------------
+// IPC Handlers
+// ----------------------------------------------------------------------------
+
+ipcMain.on("minimize-window", (event) => {
+  minimizeWindow();
+});
+
+ipcMain.on("maximize-window", (event) => {
+  maximizeWindow();
+});
+
+ipcMain.on("close-window", (event) => {
+  closeWindow();
+});
+
+ipcMain.on("open-new-window", (event, text1, text2) => {
+  createNewWindow(text1, text2);
+});
+
+ipcMain.on("redact-clipboard", (event) => {
+  redactClipboard();
+});
+
+ipcMain.on("restore-clipboard", (event) => {
+  restoreClipboard();
+});
+
+ipcMain.handle("decode-word", (event, word) => {
+  return mapping[word] || word;
+});
+
+ipcMain.on("redact-file", async (event, filePath) => {
+  await redactFile(filePath);
+});
+
+// ----------------------------------------------------------------------------
+// App lifecycle events
+// ----------------------------------------------------------------------------
+
+// Unregister all shortcuts before quitting
+app.on("will-quit", () => {
+  globalShortcut.unregisterAll();
+});
+
+// Initialize the application and create the main window when Electron is ready
+app.whenReady().then(() => {
+  createWindow();
+
+  // Re-create a window if there are no open windows (macOS specific behavior)
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
+
+// App will quit when all windows are closed, except on macOS (darwin)
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
+});

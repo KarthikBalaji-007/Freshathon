@@ -1,0 +1,21 @@
+{
+  "name": "redact",
+  "version": "1.0.0",
+  "description": "Restricting Exposed Data by Anonymization for Confidential Transmission",
+  "main": "./src/main/main.js",
+  "author": "Karthik Balaji",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.2.1"
+  },
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "@huggingface/inference": "^3.12.1",
+    "@lmstudio/sdk": "^1.1.1",
+    "@opendocsg/pdf2md": "^0.2.0",
+    "dotenv": "^16.5.0",
+    "file-type": "^19.6.0"
+  }
+}
