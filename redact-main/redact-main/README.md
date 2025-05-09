@@ -1,78 +1,100 @@
-# R.E.D.A.C.T
+```markdown
+# ✂️ R.E.D.A.C.T  
+**Restricting Exposed Data by Anonymization for Confidential Transmission**
 
-**R.E.D.A.C.T** (Restricting Exposed Data by Anonymization for Confidential Transmission) is an Electron-based application that helps you redact personal information from text documents and clipboard content. It also allows you to restore the original content from redacted text using a predefined mapping.
+🔐 An Electron-based app to **redact sensitive PII** from text documents and clipboard content, and **restore** it using a mapping mechanism.
 
-## Features
+---
 
-- Intuitive UI for redacting personal information from text documents and the clipboard
-- Quick editing of redacted text
-- Simple restoration of original content
-- Drag-and-drop support for easy file import
-- Popup notifications for user alerts
-- Generate redacted clones of PDF and TXT files by appending `-REDACTED` to the filename
+## 🚀 Features
 
-## Preview
+- 🧠 Redacts PII from clipboard and text files using a local LLM
+- ✍️ Inline editing of redacted content
+- 📋 Clipboard redaction/restoration with one click
+- 📂 Drag-and-drop file support
+- 🔔 Popup alerts and feedback
+- 📄 Generates `-REDACTED` clones of PDF and TXT files
+
+---
+
+## 🖼️ Preview
 
 ![R.E.D.A.C.T Preview](public/images/preview.png)
 
-### Installation
+---
 
-1. **Clone the repository**:  
-   ```sh
-   git clone https://github.com/abhishekk962/redact.git
+## 🛠️ Installation
+
+1. **Clone the Repository**  
+   ```bash
+   git clone https://github.com/KarthikBalaji-007/Freshathon.git
    cd redact
    ```
 
-2. **Install dependencies**:
-   ```sh
+2. **Install Dependencies**  
+   ```bash
    npm install
    ```
 
-3. **Install LM Studio v0.3.5**:  
-   [Download here](https://releases.lmstudio.ai/linux/x86/0.3.5/beta/9h/LM_Studio-0.3.5.AppImage).  
-   *(Use v0.3.5 for QNN model compatibility. Future versions may not support it.)*
+3. **Install LM Studio v0.3.5**  
+   👉 [Download Here](https://releases.lmstudio.ai/linux/x86/0.3.5/beta/9h/LM_Studio-0.3.5.AppImage)  
+   ⚠️ *Only v0.3.5 supports QNN models*
 
-4. **Download Llama 3.2 3B Model**:
-   - **Beta access**: Download Llama 3.2 3B QNN to the model directory.  
-   - **No beta access**: Download Llama 3.2 3B Instruct from the LM Studio interface.
+4. **Download Llama 3.2 3B Model**
+   - With beta access: Llama 3.2 3B QNN
+   - Without beta: Use LM Studio UI to download Llama 3.2 3B Instruct
 
-5. **Update the configuration**:  
-    In LM Studio, locate the `indexedModelIdentifier` in the model details. Copy it and update the `modelPath` in [config.json](src/config.json).
+5. **Configure the Model**
+   - Open LM Studio and copy the `indexedModelIdentifier`
+   - Paste it into `modelPath` in `src/config.json`
 
-6. **Start the application**:  
-   *(Ensure LM Studio is running. For headless mode, enable Local LLM Service in LM Studio settings.)*  
-   ```sh
+6. **Run the App**  
+   (Make sure LM Studio is running with Local LLM Service enabled)  
+   ```bash
    npm start
    ```
 
-## Usage
+---
 
-### Redact Clipboard Content
-Click the "Redact Clipboard" button to redact personal information from the clipboard content.  
-The redacted content will be displayed in a new window.
+## 🧑‍💻 Usage
 
-### Restore Clipboard Content
-Click the "Restore Clipboard" button to restore the original content from the redacted text in the clipboard.  
-The restored content will be displayed in a new window.
+### 📋 Redact Clipboard Content
+Click `Redact Clipboard` → PII is replaced with tags → Displayed in new window
 
-### Redact Document
-Drag and drop a text or PDF document onto the "Redact Document" section. The application will display the redacted content in a new window and automatically save it as a text file with the "-REDACTED" suffix.
+### ♻️ Restore Clipboard Content
+Click `Restore Clipboard` → Original content restored → Displayed in new window
 
-### Edit Redacted Content
-Click on any redacted word on the output window to restore it if you wish to make edits.
+### 📄 Redact a Document
+Drag-and-drop TXT or PDF → Redacted content shown → Saved with `-REDACTED` suffix
 
-## Note on Accuracy
-The app may fail to detect all PII in the clipboard/document and may not redact everything properly, because it uses a smaller model. Exercise caution.
+### ✏️ Edit Redacted Text
+Click redacted words to restore/edit them manually
 
-## Examples
-The [examples/](examples/) folder includes sample input and output files to demonstrate the redaction process:
-- **example_data.txt** – Contains mock personal information for testing text redactions.
-- **example_data.txt-REDACTED.txt** – Shows how the original text file is transformed after redaction.
-- **example_data.pdf** – A short PDF showcasing PDF redaction.
-- **example_data.pdf-REDACTED.txt** – Demonstrates how a redacted PDF is converted into a text file with personal information removed.
+---
 
-Feel free to experiment with these files to see how the app detects and redacts sensitive data.
+## ⚠️ Note on Accuracy
 
-## License
+This app uses a **lightweight local model** and may not perfectly detect all PII.  
+Always **double-check redacted files** before sharing.
+
+---
+
+## 📁 Examples
+
+Check the `examples/` folder for sample input/output:
+
+- `example_data.txt` – Sample input text
+- `example_data.txt-REDACTED.txt` – Redacted version
+- `example_data.pdf` – Sample PDF
+- `example_data.pdf-REDACTED.txt` – Redacted output as TXT
+
+---
+
+## 📜 License
+
 [MIT License](LICENSE)
 
+---
+
+🌟 Feel free to fork, star, and contribute to make R.E.D.A.C.T even better!
+```
