@@ -1,4 +1,3 @@
-```markdown
 # ✂️ R.E.D.A.C.T  
 **Restricting Exposed Data by Anonymization for Confidential Transmission**
 
@@ -52,7 +51,7 @@
    (Make sure LM Studio is running with Local LLM Service enabled)  
    ```bash
    npm start
-   ```
+   
 
 ---
 
