@@ -15,7 +15,11 @@
     "@huggingface/inference": "^3.12.1",
     "@lmstudio/sdk": "^1.1.1",
     "@opendocsg/pdf2md": "^0.2.0",
+    "docx": "^9.5.0",
     "dotenv": "^16.5.0",
-    "file-type": "^19.6.0"
+    "file-type": "^19.6.0",
+    "mammoth": "^1.9.0",
+    "pdf-lib": "^1.17.1",
+    "pdf2md": "^1.0.2"
   }
 }

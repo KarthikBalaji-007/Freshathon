@@ -1,0 +1,39 @@
+--- Sample PII Document ---
+
+Contact Information:
+Name: Johnathan Michael Doe (Also known as John Doe)
+Email: john.doe123@example.com and personal_john@email-provider.net
+Phone: (555) 123-4567 (Mobile) and +1-555-987-6543 (Work)
+Address: 123 Elm Street, Apartment 4B, Springfield, IL 62701, USA.
+Previous Address: 987 Oak Avenue, Old Town, CA 90210.
+
+Personal Details:
+Date of Birth: 1985-07-15
+Social Security Number (SSN): 987-65-4321
+Driver's License: D12345678
+Passport Number: PABC12345
+IP Address for login: 192.168.1.101
+
+Financial Information:
+Credit Card: 4111-1111-1111-1111 (Visa) Exp: 12/2028
+Bank Account (Checking): 9876543210 (Bank of Example)
+Bank Account (Savings): 0123456789
+
+Medical Information (Sensitive):
+Patient ID: PID7890
+Insurance ID: INSUR001-JD
+Condition: Type 2 Diabetes, managed by Dr. Alice Smith.
+Allergies: Penicillin
+
+Employment Information:
+Employer: Acme Corp Ltd.
+Location: 789 Business Rd, Metropolis, NY 10001.
+Employee ID: EID456
+
+Miscellaneous:
+Her daughter, Jane Doe, can be reached at (555) 321-7654.
+The meeting is scheduled with Mr. Robert Paulson.
+This document also mentions the organization "Tech Innovators Inc." and a project code "ProjectAlpha7".
+My frequent flyer number is FF98765.
+
+--- End of Sample PII Document ---

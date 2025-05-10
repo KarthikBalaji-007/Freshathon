@@ -37,12 +37,19 @@ document.getElementById("close-btn").addEventListener("click", () => {
     dropArea.classList.remove("highlight");
   });
 });
-// Handle dropped files
+
+// Modify the drag-and-drop similarly
 dropArea.addEventListener("drop", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  dropArea.classList.remove("highlight");
   const files = e.dataTransfer.files;
+  console.log("Renderer: Files dropped (sending whole object from drop):", files); // LOG 1 (modified)
   if (files.length) {
-    const file = files[0]; // Get the path of the first dropped file
-    window.electronAPI.redactFile(file);
+      const file = files[0];
+      console.log("Renderer: File to redact (from drop, sending object):", file); // LOG 2 (modified)
+      // LOG 3 will be effectively what LOG 2 shows
+      window.electronAPI.redactFile(file); // Send the whole File object
   }
 });
 
@@ -51,10 +58,15 @@ dropArea.addEventListener("click", () => {
   const input = document.createElement("input");
   input.type = "file";
   input.onchange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      window.electronAPI.redactFile(file);
-    }
+      const file = e.target.files[0];
+      console.log("Renderer: File selected via picker (sending whole object):", file); // LOG 4 (modified)
+      if (file) { // Just check if a file was selected
+          // LOG 5 will be effectively what LOG 4 shows
+          window.electronAPI.redactFile(file); // Send the whole File object
+      } else {
+          console.error("Renderer: No file selected from picker.");
+          alert("Error: No file selected.");
+      }
   };
   input.click();
 });
