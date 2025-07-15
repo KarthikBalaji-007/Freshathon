@@ -1,24 +1,24 @@
 # ✂️ R.E.D.A.C.T  
 **Restricting Exposed Data by Anonymization for Confidential Transmission**
 
-🔐 An Electron-based app to **redact sensitive PII** from text documents and clipboard content, and **restore** it using a mapping mechanism.
+🔐 An Electron-based desktop app to **redact sensitive PII** from text documents and clipboard content using the **Hugging Face Inference API**, with a preview and restore-friendly workflow.
 
 ---
 
 ## 🚀 Features
 
-- 🧠 Redacts PII from clipboard and text files using a local LLM
+- 🧠 Redacts PII using Hugging Face's `dslim/bert-base-NER` model (NER-based)
 - ✍️ Inline editing of redacted content
 - 📋 Clipboard redaction/restoration with one click
-- 📂 Drag-and-drop file support
+- 📂 Drag-and-drop file support for `.txt`, `.pdf`, `.doc`, `.docx`
 - 🔔 Popup alerts and feedback
-- 📄 Generates `-REDACTED` clones of PDF and TXT files
+- 📄 Generates `-REDACTED` clones while preserving original format
 
 ---
 
 ## 🖼️ Preview
 
-![R.E.D.A.C.T Preview](public/images/preview.png)
+![R.E.D.A.C.T Preview](redact-main/public/images/preview.png)
 
 ---
 
@@ -27,7 +27,7 @@
 1. **Clone the Repository**  
    ```bash
    git clone https://github.com/KarthikBalaji-007/Freshathon.git
-   cd redact
+   cd Freshathon
    ```
 
 2. **Install Dependencies**  
@@ -35,46 +35,41 @@
    npm install
    ```
 
-3. **Install LM Studio v0.3.5**  
-   👉 [Download Here](https://releases.lmstudio.ai/linux/x86/0.3.5/beta/9h/LM_Studio-0.3.5.AppImage)  
-   ⚠️ *Only v0.3.5 supports QNN models*
+3. **Configure Hugging Face API**  
+   - Create a `.env` file in the root folder  
+   - Add your API key like this:  
+     ```env
+     HUGGINGFACE_API_KEY=your_api_key_here
+     ```
 
-4. **Download Llama 3.2 3B Model**
-   - With beta access: Llama 3.2 3B QNN
-   - Without beta: Use LM Studio UI to download Llama 3.2 3B Instruct
-
-5. **Configure the Model**
-   - Open LM Studio and copy the `indexedModelIdentifier`
-   - Paste it into `modelPath` in `src/config.json`
-
-6. **Run the App**  
-   (Make sure LM Studio is running with Local LLM Service enabled)  
+4. **Run the App**  
    ```bash
    npm start
-   
+   ```
 
 ---
 
 ## 🧑‍💻 Usage
 
 ### 📋 Redact Clipboard Content
-Click `Redact Clipboard` → PII is replaced with tags → Displayed in new window
+Click `Redact Clipboard` → Detected PII is replaced with tags → Displayed in new window
 
 ### ♻️ Restore Clipboard Content
-Click `Restore Clipboard` → Original content restored → Displayed in new window
+Click `Restore Clipboard` → Original content restored from mapping → Displayed in new window
 
 ### 📄 Redact a Document
-Drag-and-drop TXT or PDF → Redacted content shown → Saved with `-REDACTED` suffix
+Drag-and-drop `.txt`, `.pdf`, `.doc`, or `.docx` → Redacted version shown → Saved with `-REDACTED` suffix
 
 ### ✏️ Edit Redacted Text
-Click redacted words to restore/edit them manually
+Click on redacted tags to manually edit or restore
 
 ---
 
 ## ⚠️ Note on Accuracy
 
-This app uses a **lightweight local model** and may not perfectly detect all PII.  
-Always **double-check redacted files** before sharing.
+This app uses the `dslim/bert-base-NER` model from Hugging Face’s Inference API for redaction.  
+It offers good baseline coverage but may occasionally miss certain entities.  
+Always **review output** before sharing externally.
 
 ---
 
@@ -82,10 +77,10 @@ Always **double-check redacted files** before sharing.
 
 Check the `examples/` folder for sample input/output:
 
-- `example_data.txt` – Sample input text
-- `example_data.txt-REDACTED.txt` – Redacted version
-- `example_data.pdf` – Sample PDF
-- `example_data.pdf-REDACTED.txt` – Redacted output as TXT
+- `example_data.txt` – Sample input text  
+- `example_data.txt-REDACTED.txt` – Redacted version  
+- `example_data.pdf` – Sample PDF  
+- `example_data.pdf-REDACTED.txt` – Redacted output in plain text
 
 ---
 
@@ -95,5 +90,4 @@ Check the `examples/` folder for sample input/output:
 
 ---
 
-🌟 Feel free to fork, star, and contribute to make R.E.D.A.C.T even better!
-```
+🌟 Feel free to fork, star, and contribute to make **R.E.D.A.C.T.** even better!
