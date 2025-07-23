@@ -26,7 +26,7 @@
 
 1. **Clone the Repository**  
    ```bash
-   git clone https://github.com/KarthikBalaji-007/Freshathon.git
+   git clone https://github.com/KarthikBalaji-007/REDACT V2.git
    cd Freshathon
    ```
 
