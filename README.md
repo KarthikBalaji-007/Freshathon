@@ -1,4 +1,4 @@
-# ✂️ R.E.D.A.C.T  
+# ✂️ R.E.D.A.C.T V2
 **Restricting Exposed Data by Anonymization for Confidential Transmission**
 
 🔐 An Electron-based desktop app to **redact sensitive PII** from text documents and clipboard content using the **Hugging Face Inference API**, with a preview and restore-friendly workflow.
